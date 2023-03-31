@@ -1,0 +1,151 @@
+---
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+ Golden State Warriors Shot Data
+
+
+```{r, echo=FALSE, warning= FALSE,message=FALSE, eval=FALSE}
+library(devtools)
+devtools::install_github("abresler/nbastatR")
+```
+
+```{r, echo=FALSE, warning= FALSE, message=FALSE}
+library(tidyverse)
+library(dplyr)
+library("patchwork")
+suppressWarnings(library(nbastatR))
+
+#Downloading the data from the Golden State Warriors for every even numbered year starting in 2004
+Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 5)
+warriors2004 <- teams_shots(teams = "Golden State Warriors", seasons = 2004, return_message = F)
+warriors2006 <- teams_shots(teams = "Golden State Warriors", seasons = 2006,return_message = F)
+warriors2008 <- teams_shots(teams = "Golden State Warriors", seasons = 2008,return_message = F)
+warriors2010 <- teams_shots(teams = "Golden State Warriors", seasons = 2010,return_message = F)
+warriors2012 <- teams_shots(teams = "Golden State Warriors", seasons = 2012,return_message = F)
+warriors2014 <- teams_shots(teams = "Golden State Warriors", seasons = 2014,return_message = F)
+warriors2016 <- teams_shots(teams = "Golden State Warriors", seasons = 2016,return_message = F)
+warriors2018 <- teams_shots(teams = "Golden State Warriors", seasons = 2018,return_message = F)
+warriors2020 <- teams_shots(teams = "Golden State Warriors", seasons = 2020,return_message = F)
+warriors2022 <- teams_shots(teams = "Golden State Warriors", seasons = 2022,return_message = F)
+
+#Combining the data from all of the years
+warriorsEyears <- bind_rows(warriors2004, warriors2006, warriors2008, warriors2010, warriors2012, warriors2014, warriors2016, warriors2018, warriors2020, warriors2022)
+```
+
+```{r, echo=FALSE, fig.width=8, fig.height=4, warning= FALSE, message=FALSE}
+#Importing all the necessary Packages
+
+library(grid)
+library(jpeg)
+library(ggplot2)
+library(ggpubr)
+library(grid)
+library(jpeg)
+library(ggthemes)
+library(gganimate)
+library(tidyverse)
+library(dplyr)
+
+  #Before making the plot, we have to import the basketball court as the backround
+  img  <- "court3.jpg"
+  img2 <- readJPEG(img, native = TRUE)
+  img3 <- rasterGrob(img2, interpolate=TRUE)
+  
+  #Starting the plot, defining our data and locations
+    ggplot(warriorsEyears, aes(locationX, locationY)) +
+      
+  #Adjusting the background image to fit the data
+    annotation_custom(img3, xmin=-450, xmax=452, ymin=-20, ymax=720) +
+      
+  #Creating the size for the data points of shots made and missed
+    geom_point(aes(colour = isShotMade, alpha = 0.8), size = .05) +
+      
+  #Length and Width of the data points
+    xlim(250, -250) +
+    ylim(-10, 510) +
+      
+    guides(alpha = FALSE, size = FALSE) +
+  #Adjusting the data points
+    geom_rug(alpha = 0.2) +
+    coord_fixed() +
+      
+  #Labeling the title of the plots, along with a x-axis and y-axis label
+    ggtitle(paste("Even Years Golden State Warriors Shot Chart from 2004-2022")) +
+    xlab("Shot Location by 1/10 Inch") + 
+    ylab("Shot Location by 1/10 Inch") +
+      
+  #Putting the data from different years separate, then labeling the legend and colors of the made and missed shots
+    facet_wrap(vars(slugSeason), nrow = 2) +  
+    scale_color_manual(values = c("Black", "Blue"),labels = c("Miss", "Make"), name = "Result") 
+
+```
+
+- From 2003-04 to 2021-22, you can see a huge decrease in mid range shots
+- In the same time frame, you can see an increase in 3 point shots attempted
+- There is a slow decrease in short corner shots attempted
+- In the more recent years, the majority of shots are right by the rim, or outside the arc
+- There is an increase in 3 point shots made
+
+
+Clearly, there is a huge difference in shots attempted throughout the years, this is because the game keeps evolving. One reason why the game has evolved a lot in the last couple decades is because of the introduction to the three point line in 1979. Although this happened 25 years before this data, it took time for the game to evolve. In today's game, many people believe that mid range shots are the worst shot in the game, which is why there is a significant decrease in mid range shots attempted. This also has to do with the increase in three pointers attempted. More and more people every year get better at shooting three point shots, because it is a huge part of the game. The Warriors have increased by 20 three point shots attempted from 2004-2022. This also has a lot to do with the Warriors having two of the arguably best shooters of all time in Steph Curry and Klay Thompson the past decade. Not only do the Warriors have a lot of success shooting from deep, but since there are more attempts this is why there are many more made three point shots, along with the league getting more shooters over time. This is a good reason why the Warriors attempt so many threes, but also why they make so many. The decrease in short corner shots has to do with it still being a mid range shot, but also what many believe is the toughest mid range shot, hence the decrease in attempts. As the years go on, the majority of shots are at the rim, or outside the arc. This is because they are the two highest percentage shots in basketball in today's game. Most teams have their bigger guys scoring near the rim, and shooters shooting outside the arc, which sets most teams up for success, especially the Warriors, who have won 4 NBA championships in the past 10 years. These shot charts are not the entire reason for the Warriors success, but with them taking the highest percentage shots is a huge part in their success.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, echo=FALSE, fig.width=10, fig.height=7, warning= FALSE, message=FALSE}
+#Combining the Data from the 2 Years
+warriors2years <- bind_rows(warriors2004, warriors2022)
+
+#Creating a histogram comparing distance and shots attempted in the season.
+  ggplot(warriors2years,aes(zoneRange, isShotAttempted)) +
+  
+#Making a histogram
+  geom_col() +
+  
+#Naming the Title and Coordinates
+  ggtitle("Shots Made by Distance Throughout a Season") +
+  xlab("Shot Distance") + ylab("Attempts") +
+  
+#Separating the two Graphs
+  facet_wrap(vars(slugSeason), nrow = 2) +
+  
+#Creating the Theme of the Plot
+  theme_economist()
+```
+
+
+Here we have data of how many of each shot was taken in 2004, and then 2022. This data is very interesting, and shows how much the game has evolved. In the 2003-04 season, shots within 8 feet had the most attempts and it really was not even close. After that, mid range shots had the second most attempts, with three pointers next, and short jump shots after that. This shows that in the 2003-04 season, how much more important close shots were than it is now. In the 2021-22 season, three pointers had the most attempts, with close shots coming second. The. most intriguing part of this part is that in the 2021-22 season, mid range shots fell off a lot. In the 2021-22 season, closer jump shots have more attempts than mid range. This goes back to the point that many people now believe that mid range shots are the worst shots in basketball. Over the past 20 years, the data and game has changed a lot.
+
+
+
+  
+
+  
+  
+
+  
+
+  
+
+
+
